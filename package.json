@@ -1,0 +1,1 @@
+{"private":true,"scripts":{"test:extension":"node --test Tests/extension.test.cjs"},"devDependencies":{"jsdom":"^26.1.0"}}
