@@ -46,6 +46,7 @@ final class DeadlineStore: NSObject, ObservableObject, UNUserNotificationCenterD
     @Published var events: [CalendarEvent] = []
     @Published var externalSources: [ExternalSnapshot] = []
     @Published var externalError: String?
+    @Published var chromeSetupMessage = ""
     private var brightspaceEvents: [CalendarEvent] = []
     @Published var fetchedAt: Date?
     @Published var errorMessage: String?
@@ -80,6 +81,14 @@ final class DeadlineStore: NSObject, ObservableObject, UNUserNotificationCenterD
         if !localSnapshot, let secret = FeedSecret.read(), let url = Self.validURL(secret) { feedURL = url; configured = true }
         center.delegate = self
         loginEnabled = SMAppService.mainApp.status == .enabled
+        setupChrome()
+    }
+
+    func setupChrome() {
+        do {
+            try ChromeSetup.register()
+            chromeSetupMessage = "Chrome 连接组件已配置，无需运行安装脚本。"
+        } catch { chromeSetupMessage = "Chrome 连接配置失败：\(error.localizedDescription)" }
     }
 
     static func validURL(_ value: String) -> URL? {

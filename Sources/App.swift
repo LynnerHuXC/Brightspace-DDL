@@ -208,6 +208,18 @@ struct Dashboard: View {
 
     private var settingsView: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Text("Chrome 扩展安装").font(.headline)
+            Text(store.chromeSetupMessage).font(.caption)
+            Text("打开 Chrome 的 chrome://extensions，开启开发者模式，选择“加载已解压的扩展程序”，选中下方打开的 Extension 文件夹。安装后刷新课程页面。").font(.caption).foregroundStyle(.secondary)
+            HStack {
+                Button("打开扩展文件夹") {
+                    if let folder = Bundle.main.resourceURL?.appendingPathComponent("Extension") {
+                        NSWorkspace.shared.activateFileViewerSelecting([folder])
+                    }
+                }
+                Button("修复 Chrome 连接") { store.setupChrome() }
+            }
+            Divider()
             sourceStatus
             Text("提醒设置").font(.headline)
             Text("每天纽约时间 17:00，汇总未来 7 天 DDL。电脑唤醒后会补同步，并补发当天错过的汇总。")

@@ -12,10 +12,10 @@
 
 需要 Apple Silicon Mac、macOS 13 或更新版本。当前构建脚本仅支持 arm64。
 
-1. 下载仓库源码并解压，安装 Xcode Command Line Tools。
-2. 在项目目录运行 `bash build.sh`，解压 `dist/BrightspaceDDL.zip`。
+1. 从 [GitHub Releases](https://github.com/LynnerHuXC/Brightspace-DDL/releases) 下载 App ZIP 并解压。
+2. 如需从源码构建，请安装 Xcode Command Line Tools，然后在项目目录运行 `bash build.sh`。
 3. 将 `Brightspace DDL.app` 放入用户目录的 `Applications` 文件夹并打开。
-4. 如需网页来源，运行 `python3 install-bridge.py`，然后在 Chrome 的 `chrome://extensions` 开启开发者模式，选择“加载已解压的扩展程序”并选中 `Extension` 目录。
+4. App 1.5 起会在启动时自动配置 Chrome 连接，无需 Python，也支持系统的 `/Applications`。打开 App 设置，点击“打开扩展文件夹”，然后在 Chrome 的 `chrome://extensions` 开启开发者模式，选择“加载已解压的扩展程序”并选中这个 `Extension` 目录。
 5. 刷新已登录的课程页面，点击扩展查看同步状态。
 
 App 使用本地临时签名，尚未经过 Apple 开发者公证。请先审阅源码，或在自己的 Mac 上构建。
@@ -55,7 +55,7 @@ bash build.sh
 
 配套 `Extension` 文件夹是本机 Chrome 扩展。它只读取课程作业元数据（课程、名称、截止时间、明确的提交状态），通过 Chrome Native Messaging 交给 App 自带的 `DDLBridge`。不复制登录 cookie、密码、分数或答案，不上传到其他服务器。
 
-- 首次在 Chrome 扩展管理页面开启开发者模式，加载 `Extension` 文件夹，然后刷新课程作业页面。需要注册 `local.brightspace.ddl` 本机组件；见 `install-bridge.py`。
+- 首次在 Chrome 扩展管理页面开启开发者模式，加载 `Extension` 文件夹，然后刷新课程作业页面。App 1.5 会自动注册本机连接组件。
 - 保留每门 Gradescope 课程的作业列表标签页，以及 WebAssign 的 Home / My Assignments 标签页。Chrome 运行并保持登录时，每小时对这些页面进行只读 GET。不会刷新用户标签页、打开提交弹窗或发送作业。
 - WebAssign 首页最多只提供部分当前作业；打开 My Assignments 会捕获其完整可见列表。之后局部同步保留未再次出现的项目及其原确认时间，不把消失理解为取消或完成。页面中缺少可确定 DDL 的项目会计入警告。
 - Gradescope 仅使用普通 Due Date，不使用 Released 或 Late Due Date。明确 Submitted 的项目在 App 中折叠展示并排除提醒。没有提交状态时显示截止日期，但不称其“未完成”。WebAssign 分数不用于推断提交状态。
