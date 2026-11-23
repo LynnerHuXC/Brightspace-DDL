@@ -42,9 +42,48 @@
     return {version:1,source:'keenly',courseKey:'tasks',course:'Keenly Tasks',events,completedIDs,
       warning:`页面日期未标明时间时按日期提醒；相对日期按页面加载日换算，未标年份按当前年份（跨年 Later 按下一年）。${skipped?`${skipped} 项日期无法确认，已跳过。`:''}`};
   }
+  function aleks(doc) {
+    const course = (doc.body?.innerText || '').match(/\bCM-UY[^\n]*?\b(?:Fall|Spring|Summer)\s+20\d{2}/i)?.[0]?.replace(/\s+/g, ' ') ||
+      text(doc.querySelector('main h1, h1')).replace(/^Assignments$/i, '') ||
+      (doc.title || '').replace(/\s+-\s+(?:Home|Assignments|ALEKS)$/i, '').trim();
+    if (!course || /^(ALEKS|Assignments|Home)$/i.test(course) || course.length > 500) return null;
+    const clock = new Intl.DateTimeFormat('en-GB', {
+      timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit',
+      hour:'2-digit', minute:'2-digit', hourCycle:'h23'
+    });
+    const events = new Map(), duplicates = new Set();
+    let skipped = 0;
+    for (const grid of doc.querySelectorAll('[role="grid"]')) {
+      const headers = [...grid.querySelectorAll('tr')].find(row =>
+        [...row.cells].some(cell => /^Due(?: Date)?$/i.test(text(cell))));
+      if (!headers) continue;
+      const dueIndex = [...headers.cells].findIndex(cell => /^Due(?: Date)?$/i.test(text(cell)));
+      for (const row of grid.querySelectorAll('tr')) {
+        const title = text(row.querySelector('[role="rowheader"]'));
+        if (!title || title.length > 500) continue;
+        const date = text(row.cells[dueIndex]).match(/^(\d{1,2})\/(\d{1,2})\/(20\d{2})\s+(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+        if (!date || +date[4] < 1 || +date[4] > 12 || +date[5] > 59) { skipped++; continue; }
+        const [, month, day, year, hour, minute, period] = date;
+        const h = +hour % 12 + (period.toUpperCase() === 'PM' ? 12 : 0);
+        const candidates = [4, 5].map(offset => new Date(Date.UTC(+year, +month - 1, +day, h + offset, +minute)))
+          .filter(candidate => {
+            const fields = Object.fromEntries(clock.formatToParts(candidate).map(({type,value}) => [type,+value]));
+            return fields.year === +year && fields.month === +month && fields.day === +day && fields.hour === h && fields.minute === +minute;
+          });
+        if (candidates.length !== 1) { skipped++; continue; }
+        if (events.has(title)) duplicates.add(title);
+        events.set(title, {id:title, title, due:candidates[0].toISOString(), submitted:null, url:'https://www.aleks.com/'});
+      }
+    }
+    for (const title of duplicates) { events.delete(title); skipped++; }
+    if (!events.size) return null;
+    return {version:1, source:'aleks', courseKey:course, course, events:[...events.values()],
+      warning:'ALEKS 截止时间按纽约时区换算，请与课程页面核对。' + (skipped ? `已跳过 ${skipped} 项日期无法确认或名称重复的作业。` : '')};
+  }
   function parse(doc, address, now=new Date()) {
     const url = new URL(address);
     if (url.protocol !== 'https:') return null;
+    if (/(^|\.)aleks\.com$/.test(url.hostname)) return aleks(doc);
     if(url.hostname==='keenly.study' && /^\/tasks\/?$/.test(url.pathname))return keenly(doc,now);
     let source, courseKey, course, events = [], skipped = 0, warning = null;
     if (['gradescope.com','www.gradescope.com'].includes(url.hostname)) {

@@ -1,5 +1,5 @@
 const HOST='local.brightspace.ddl';
-const patterns=['https://keenly.study/tasks','https://keenly.study/tasks/','https://gradescope.com/courses/*','https://www.gradescope.com/courses/*','https://webassign.net/v4cgi/student.pl*','https://www.webassign.net/v4cgi/student.pl*'];
+const patterns=['https://*.aleks.com/*','https://keenly.study/tasks','https://keenly.study/tasks/','https://gradescope.com/courses/*','https://www.gradescope.com/courses/*','https://webassign.net/v4cgi/student.pl*','https://www.webassign.net/v4cgi/student.pl*'];
 function sourceFor(sender) {
   if(sender.id!==chrome.runtime.id || sender.frameId!==0 || !sender.tab)return null;
   const u=new URL(sender.url);
@@ -7,6 +7,7 @@ function sourceFor(sender) {
   if(['gradescope.com','www.gradescope.com'].includes(u.hostname)&&/^\/courses\/\d+\/?$/.test(u.pathname))return 'gradescope';
   if(['webassign.net','www.webassign.net'].includes(u.hostname)&&u.pathname==='/v4cgi/student.pl')return 'webassign';
   if(u.hostname==='keenly.study' && /^\/tasks\/?$/.test(u.pathname))return 'keenly';
+  if (/(^|\.)aleks\.com$/.test(u.hostname)) return 'aleks';
   return null;
 }
 async function recordStatus(source,value) {

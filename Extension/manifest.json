@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "DDL 课程同步",
-  "version": "1.1.0",
-  "description": "将 Gradescope、WebAssign 和 Keenly Tasks 截止日期同步到本机 Mac App。",
+  "version": "1.2.0",
+  "description": "将 Gradescope、WebAssign、Keenly Tasks 和 ALEKS 截止日期同步到本机 Mac App。",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmOuSqqLTKl7jf7R82z4cTb1rgbplGrbsYhuA3P2b9wzVhBz2jVLYZnh92Gp69CZVrlPQA6aVk2QCiBvEn9Axdu00WFiPc8H6IR40hhJVb3TCQngedj3oE1e1n3XbvdAF+/NfuVHdcuUYEbZr8hXMvyE66ykdsXlP1HTpYiSXNm/hdwPEBzuQoS/Z6eToZYlVYbCr5b5/sgQLJ3XymTLpfxMeI58fGrkCl+FInnt4pxpZvb+gqWU2e3owoJM+o+4WJBsw6ZnBfFylJjwX07wWrpmyXlKgIWR97Y4Nl8KDTbnwUazu/FmmxNXwaumVKMNPgs0c+GDkshzD/xQY4J3zswIDAQAB",
   "permissions": [
     "nativeMessaging",
@@ -10,6 +10,7 @@
     "storage"
   ],
   "host_permissions": [
+    "https://*.aleks.com/*",
     "https://gradescope.com/*",
     "https://www.gradescope.com/*",
     "https://webassign.net/*",
@@ -26,6 +27,7 @@
   "content_scripts": [
     {
       "matches": [
+        "https://*.aleks.com/*",
         "https://gradescope.com/courses/*",
         "https://www.gradescope.com/courses/*",
         "https://webassign.net/v4cgi/student.pl*",

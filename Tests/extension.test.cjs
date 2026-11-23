@@ -6,6 +6,18 @@ const parserPath=require('node:path').join(__dirname,'../Extension/parser.js');
 const parser=fs.existsSync(parserPath)?require(parserPath):{parse:()=>null};
 const doc=s=>new JSDOM(s).window.document;
 const fixture=name=>doc(fs.readFileSync(`${__dirname}/fixtures/${name}.html`,'utf8'));
+test('ALEKS reads Due rather than Start, handles DST and ignores scores',()=>{
+ const row=(name,due)=>`<tr><th role="rowheader">${name}</th><td>Homework</td><td>10/1/2026 2:00 PM</td><td>${due}</td><td>100%</td></tr>`;
+ const page=doc(`<title>Chemistry - Home</title><table role="grid"><tr><th>Name</th><th>Type</th><th>Start</th><th>Due</th><th>Score</th></tr>
+ ${row('Fall homework','10/31/2026 11:59 PM')}${row('Winter homework','11/2/2026 11:59 PM')}${row('Ambiguous','11/1/2026 1:30 AM')}${row('Invalid','2/30/2026 5:00 PM')}</table>`);
+ const payload=parser.parse(page,'https://www.aleks.com/student');
+ assert.equal(payload.course,'Chemistry');
+ assert.deepEqual(payload.events.map(e=>[e.due,e.submitted]),[
+  ['2026-11-01T03:59:00.000Z',null],['2026-11-03T04:59:00.000Z',null]
+ ]);
+ assert.equal(parser.parse(page,'https://aleks.com.example.org'),null);
+ assert.equal(parser.parse(doc('<title>ALEKS</title>'),'https://www.aleks.com'),null);
+});
 test('Gradescope uses due not release, and detects submitted',()=>{
  const p=parser.parse(fixture('gradescope'),'https://www.gradescope.com/courses/123');
  assert.ok(p,'supported page should produce assignments');

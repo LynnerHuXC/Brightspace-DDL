@@ -1,6 +1,7 @@
 (() => {
   let busy=false, lastDOMDigest='';
   const pageLoadedAt=new Date();
+  const isAleks = /(^|\.)aleks\.com$/.test(location.hostname);
   async function send(document, force=false) {
     // A live SPA may render a fresh relative label long after the document loaded.
     // The hourly fresh tab owns cross-day captures; an old tab cannot overwrite them.
@@ -17,6 +18,7 @@
     if(busy)return;busy=true;
     try {
       // GET only. Never reload the user's tab or touch assignment forms.
+      if (isAleks) { await send(document); return; }
       const supported=DDLParser.parse(document,location.href,pageLoadedAt);
       if(!supported)return;
       const response=await fetch(location.href,{credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(25000)});
@@ -24,7 +26,7 @@
       const html=await response.text();
       if(html.length>10000000 || !await send(new DOMParser().parseFromString(html,'text/html'),true))throw new Error('unrecognized page');
     } catch {
-      await chrome.runtime.sendMessage({type:'failure',source:location.hostname==='keenly.study'?'keenly':location.hostname.includes('gradescope')?'gradescope':'webassign'}).catch(()=>{});
+      await chrome.runtime.sendMessage({type:'failure',source:isAleks?'aleks':location.hostname==='keenly.study'?'keenly':location.hostname.includes('gradescope')?'gradescope':'webassign'}).catch(()=>{});
     } finally {busy=false;}
   }
   chrome.runtime.onMessage.addListener((m,_s,reply)=>{

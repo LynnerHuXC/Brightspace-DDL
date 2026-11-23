@@ -169,7 +169,7 @@ struct Dashboard: View {
     private var sourceStatus: some View {
         DisclosureGroup("网页来源 · \(store.externalSources.count) 个连接") {
             VStack(alignment: .leading, spacing: 10) {
-                Text("在 Chrome 中保留 Gradescope 课程作业页、WebAssign Home / My Assignments 和 Keenly Tasks。扩展每小时同步，App 每分钟读取。刷新按钮读取本机最新结果；立即抓取请点 Chrome 扩展。")
+                Text("Chrome 支持 Gradescope 作业页、WebAssign Home / My Assignments、Keenly Tasks 和 ALEKS Assignments。ALEKS 读取当前页面，作业有变动时请刷新网页。App 每分钟读取本机同步结果。")
                     .font(.caption).foregroundStyle(.secondary)
                 if store.externalSources.isEmpty { Text("尚未连接：请加载配套 Chrome 扩展后刷新课程页面。").font(.caption).foregroundStyle(.orange) }
                 ForEach(store.externalSources) { source in

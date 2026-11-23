@@ -1,5 +1,7 @@
 # Brightspace DDL
 
+App 1.6 / Chrome 扩展 1.2 支持 ALEKS。登录后打开课程的 **Assignments**，扩展读取 Due 列。作业有变动时请刷新该页面。页面未注明时区时按纽约时间换算，分数不用于推断提交状态。更新 App 后请重新加载内置扩展并确认 ALEKS 网站权限。
+
 <img src="Assets/icon.svg" width="96" alt="Purple B on a white background">
 
 开源 macOS 菜单栏作业提醒工具，支持 NYU Brightspace、Gradescope、Cengage / WebAssign 和 Keenly Tasks。原生磨砂弹出面板固定在菜单栏图标下方，点击外部收起。

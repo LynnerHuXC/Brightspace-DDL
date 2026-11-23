@@ -114,5 +114,12 @@ do {
     let done = try JSONDecoder().decode(ExternalPayload.self, from: Data(doneJSON.utf8)).snapshot(now: five)
     check(done.merging(previous: ks).events[0].submitted == true, "Keenly completed task without date clears existing reminder")
 } catch { check(false, "Keenly source and date-only protocol accepted") }
+let aleksJSON = #"{"version":1,"source":"aleks","courseKey":"Chemistry","course":"Chemistry","events":[{"id":"Homework 1","title":"Homework 1","due":"2026-11-03T04:59:00.000Z","submitted":true,"url":"https://www.aleks.com/"}]}"#
+do {
+    let payload = try JSONDecoder().decode(ExternalPayload.self, from: Data(aleksJSON.utf8))
+    let snapshot = try payload.snapshot()
+    check(snapshot.displayName == "ALEKS" && snapshot.events.first?.sourceName == "ALEKS", "ALEKS source labels")
+    check(snapshot.events.first?.submitted == nil, "ALEKS does not infer submission")
+} catch { check(false, "ALEKS snapshot accepted") }
 print("\(checks) checks, \(failures) failures")
 exit(failures == 0 ? 0 : 1)

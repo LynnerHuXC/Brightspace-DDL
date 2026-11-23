@@ -26,7 +26,7 @@ struct CalendarEvent: Codable, Identifiable, Equatable {
     var source: String? = nil
     var submitted: Bool? = nil
     var observedAt: Date? = nil
-    var sourceName: String { source == "keenly" ? "Keenly" : source == "gradescope" ? "Gradescope" : source == "webassign" ? "Cengage / WebAssign" : "Brightspace" }
+    var sourceName: String { source == "aleks" ? "ALEKS" : source == "keenly" ? "Keenly" : source == "gradescope" ? "Gradescope" : source == "webassign" ? "Cengage / WebAssign" : "Brightspace" }
     var dateLabel: String {
         let label = NYTime.display(date, allDay: allDay)
         return source == "keenly" && allDay ? label.replacingOccurrences(of: "全天", with: "截止时间未注明") : label
